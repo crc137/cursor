@@ -85,7 +85,7 @@ EOL
         source "$HOME/.bashrc"
     fi
 
-    zenity --info --title="Cursor Installer" --text="✅ Cursor v${LATEST_VERSION} installed and available in Show Apps."
+    zenity --info --title="Cursor Installer" --text="Cursor v${LATEST_VERSION} installed and available in Show Apps."
 }
 
 remove_cursor() {
@@ -103,7 +103,7 @@ remove_cursor() {
     rm -f "$CHECK_SCRIPT"
 
     source "$HOME/.bashrc"
-    zenity --info --title="Cursor Installer" --text="✅ Cursor completely removed."
+    zenity --info --title="Cursor Installer" --text="Cursor completely removed."
 }
 
 setup_daily_check() {
@@ -111,7 +111,7 @@ setup_daily_check() {
     chmod +x "$CHECK_SCRIPT"
     
     (crontab -l 2>/dev/null | grep -v "$CRON_MARKER"; echo "0 10 * * * /bin/bash $CHECK_SCRIPT $CRON_MARKER") | crontab -
-    zenity --info --title="Cursor Installer" --text="✅ Daily update check scheduled at 10:00"
+    zenity --info --title="Cursor Installer" --text="Daily update check scheduled at 10:00"
 }
 
 remove_daily_check() {
@@ -119,7 +119,7 @@ remove_daily_check() {
     
     rm -f "$CHECK_SCRIPT"
     
-    zenity --info --title="Cursor Installer" --text="✅ Daily update check removed."
+    zenity --info --title="Cursor Installer" --text="Daily update check removed."
 }
 
 check_dependencies
@@ -142,7 +142,7 @@ case $CHOICE in
             remove_cursor
             install_cursor
         else
-            zenity --info --title="Cursor Installer" --text="Cursor v$INSTALLED_VERSION is already up to date ✅"
+            zenity --info --title="Cursor Installer" --text="Cursor v$INSTALLED_VERSION is already up to date"
         fi
         ;;
     2)
