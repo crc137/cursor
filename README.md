@@ -34,7 +34,9 @@
 ./install.sh uninstall
 ```
 
-## Files
+## Included Files
 
-* `install.sh` – install/uninstall/integrate
-* `cursor_update_check.sh` – check and update AppImage
+* `install.sh` – handles installation, uninstallation, and integration
+* `cursor_update_check.sh` – checks and updates the AppImage
+
+> Safe to run; no prohibited actions included.
