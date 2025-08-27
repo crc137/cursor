@@ -10,9 +10,9 @@ Welcome to **Cursor**, the innovative code editor designed to boost your product
 *   **Seamless System Integration:**
     *   **Desktop Launcher:** Appears directly in your Linux application menu with a custom icon for quick access. 
     *   **Terminal Command:** Launch Cursor from any terminal with a simple `cursor` command, preventing multiple instances. 
-*   **Automated Updates:** Stay current with the latest features and bug fixes through our smart, graphical update checker. It proactively notifies you of new versions and handles the upgrade process. ⬆
+*   **Automated Updates:** Stay current with the latest features and bug fixes through our smart, graphical update checker. It proactively notifies you of new versions and handles the upgrade process. 
 *   **Dependency Management:** Automatically checks for and installs necessary command-line tools to ensure a smooth operation. 
-*   **Clean Uninstallation:** A dedicated function within the installer ensures all components (AppImage, icon, desktop entry, terminal alias) are cleanly removed. 🗑
+*   **Clean Uninstallation:** A dedicated function within the installer ensures all components (AppImage, icon, desktop entry, terminal alias) are cleanly removed. 
 
 ## Key Tools & Technologies Used 
 
