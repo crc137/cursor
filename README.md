@@ -1,19 +1,40 @@
-## Getting Started
+# Cursor – Linux Installer
 
-Installing Cursor on Linux is quick and simple:
+## Installation
 
-1. **Download the installer** from the official website.  
-2. **Make it executable** (one-time action).  
-3. **Run the script** – it will automatically fetch the latest AppImage, integrate Cursor into your application menu, and add the `cursor` command to your terminal.  
+1. Download `install.sh`.
+2. Make it executable:
 
->  On first launch, the installer will check for and install any missing dependencies (`curl`, `jq`, `zenity`).  
+   ```bash
+   chmod +x install.sh
+   ```
+3. Run the installer:
 
-### Launching Cursor
-- From your application menu (search for **Cursor**).  
-- From the terminal: `cursor`  
+   ```bash
+   ./install.sh
+   ```
 
-### Updating
-Cursor automatically checks for new versions. If an update is available, you’ll receive a graphical notification and can upgrade with just a couple of clicks.  
+## Launch
 
-### Uninstalling
-To remove Cursor, simply run the installer with the `uninstall` argument – it will completely clean up the AppImage, icon, and all related settings.
+* From the application menu (**Cursor**)
+* Or from terminal:
+
+  ```bash
+  cursor
+  ```
+
+## Update
+
+* Automatic via `cursor_update_check.sh`
+* Or re-run `install.sh`
+
+## Uninstall
+
+```bash
+./install.sh uninstall
+```
+
+## Files
+
+* `install.sh` – install/uninstall/integrate
+* `cursor_update_check.sh` – check and update AppImage
