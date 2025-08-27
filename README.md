@@ -6,7 +6,7 @@ Installing Cursor on Linux is quick and simple:
 2. **Make it executable** (one-time action).  
 3. **Run the script** – it will automatically fetch the latest AppImage, integrate Cursor into your application menu, and add the `cursor` command to your terminal.  
 
-> ⚡ On first launch, the installer will check for and install any missing dependencies (`curl`, `jq`, `zenity`).  
+>  On first launch, the installer will check for and install any missing dependencies (`curl`, `jq`, `zenity`).  
 
 ### Launching Cursor
 - From your application menu (search for **Cursor**).  
