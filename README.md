@@ -1,5 +1,3 @@
-# Cursor – Linux Installer
-
 <p align="center">
   <img src="https://cursor.com/cursor-website-proxy/assets/videos/logo/logo-loading.gif" alt="Cursor Logo" width="150">
 </p>
