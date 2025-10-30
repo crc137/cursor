@@ -1,8 +1,3 @@
-diff --git a/cursor_update_check.sh b/cursor_update_check.sh
-index ae12b95e27902c2a5937831e3d73c1a7c8acdd2e..dd720034b378f4762b1096b6e2e8885a3531cd42 100644
---- a/cursor_update_check.sh
-+++ b/cursor_update_check.sh
-@@ -1,102 +1,155 @@
  #!/bin/bash
  set -euo pipefail
  
