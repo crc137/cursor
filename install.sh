@@ -3,6 +3,7 @@
 APPIMAGE_PATH="/opt/cursor.appimage"
 ICON_PATH="/opt/cursor.svg"
 DESKTOP_ENTRY_PATH="/usr/share/applications/cursor.desktop"
+VERSION_FILE="/opt/cursor.version"
 CHECK_SCRIPT="$HOME/.cursor_update_check.sh"
 CRON_MARKER="# Cursor daily update check"
 
@@ -19,13 +20,18 @@ read -r -d '' ICON_SVG <<'EOF'
 EOF
     
 check_dependencies() {
+    local missing=()
     for cmd in curl jq zenity; do
-        if ! command -v $cmd &>/dev/null; then
-            echo "Installing $cmd..."
-            sudo apt-get update -y
-            sudo apt-get install -y $cmd
+        if ! command -v "$cmd" &>/dev/null; then
+            missing+=("$cmd")
         fi
     done
+
+    if [ ${#missing[@]} -gt 0 ]; then
+        echo "Installing ${missing[*]}..."
+        sudo apt-get update -y
+        sudo apt-get install -y "${missing[@]}"
+    fi
 }
 
 get_latest_info() {
@@ -44,19 +50,49 @@ get_latest_info() {
 }
 
 get_installed_version() {
-    if [ -f "$APPIMAGE_PATH" ]; then
-        basename "$APPIMAGE_PATH" | grep -oP '(?<=Cursor-)[0-9]+\.[0-9]+\.[0-9]+'
-    else
-        echo "none"
+    if [ -f "$VERSION_FILE" ]; then
+        cat "$VERSION_FILE"
+        return
     fi
+
+    if [ -x "$APPIMAGE_PATH" ]; then
+        local version_tmp
+        version_tmp=$(mktemp)
+
+        if "$APPIMAGE_PATH" --appimage-version >"$version_tmp" 2>/dev/null; then
+            tr -d '\r' <"$version_tmp"
+            rm -f "$version_tmp"
+            return
+        fi
+
+        if "$APPIMAGE_PATH" --version >"$version_tmp" 2>/dev/null; then
+            tr -d '\r' <"$version_tmp"
+            rm -f "$version_tmp"
+            return
+        fi
+
+        rm -f "$version_tmp"
+    fi
+
+    echo "none"
 }
 
 install_cursor() {
     get_latest_info
     echo "Installing Cursor v${LATEST_VERSION}..."
 
-    sudo curl -L "$LATEST_URL" -o "$APPIMAGE_PATH"
-    sudo chmod +x "$APPIMAGE_PATH"
+    local temp_file
+    temp_file=$(mktemp)
+
+    if ! curl -fSL "$LATEST_URL" -o "$temp_file"; then
+        rm -f "$temp_file"
+        zenity --error --title="Cursor Installer" --text="Failed to download Cursor v${LATEST_VERSION}."
+        exit 1
+    fi
+
+    sudo install -m 0755 "$temp_file" "$APPIMAGE_PATH"
+    rm -f "$temp_file"
+    echo "$LATEST_VERSION" | sudo tee "$VERSION_FILE" >/dev/null
 
     echo "$ICON_SVG" | sudo tee "$ICON_PATH" >/dev/null
 
@@ -93,7 +129,7 @@ remove_cursor() {
         pkill -f "cursor.appimage"
     fi
 
-    sudo rm -f "$APPIMAGE_PATH" "$ICON_PATH" "$DESKTOP_ENTRY_PATH"
+    sudo rm -f "$APPIMAGE_PATH" "$ICON_PATH" "$DESKTOP_ENTRY_PATH" "$VERSION_FILE"
 
     if grep -q "# Cursor alias" "$HOME/.bashrc"; then
         sed -i '/# Cursor alias/,+7d' "$HOME/.bashrc"
