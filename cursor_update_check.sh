@@ -2,9 +2,9 @@
 APPIMAGE_PATH="/opt/cursor.appimage"
 
 for cmd in jq zenity curl; do
-    if ! command -v $cmd &>/dev/null; then
+    if ! command -v "$cmd" &>/dev/null; then
         sudo apt-get update -y
-        sudo apt-get install -y $cmd
+        sudo apt-get install -y "$cmd"
     fi
 done
 
@@ -18,12 +18,25 @@ else
     INSTALLED_VERSION="none"
 fi
 
-if [ "$INSTALLED_VERSION" != "$LATEST_VERSION" ]; then
-    RESPONSE=$(zenity --question --title="Cursor Update" \
-        --text="New version available: $LATEST_VERSION\nInstalled: $INSTALLED_VERSION\nDo you want to update?" \
-        --ok-label="Update" --cancel-label="Skip")
+if [ -z "$LATEST_VERSION" ] || [ -z "$LATEST_URL" ]; then
+    zenity --error --title="Cursor Update" --text="Failed to fetch the latest Cursor release information."
+    exit 1
+fi
 
-    if [ $? -eq 0 ]; then
-        /bin/bash "$(dirname "$0")/install.sh"
+if [ "$INSTALLED_VERSION" != "$LATEST_VERSION" ]; then
+    if zenity --question --title="Cursor Update" \
+        --text="New version available: $LATEST_VERSION\nInstalled: $INSTALLED_VERSION\nDo you want to update?" \
+        --ok-label="Update" --cancel-label="Skip"; then
+        TEMP_FILE=$(mktemp)
+        if ! curl -L "$LATEST_URL" -o "$TEMP_FILE"; then
+            rm -f "$TEMP_FILE"
+            zenity --error --title="Cursor Update" --text="Failed to download Cursor $LATEST_VERSION."
+            exit 1
+        fi
+
+        sudo mv "$TEMP_FILE" "$APPIMAGE_PATH"
+        sudo chmod +x "$APPIMAGE_PATH"
+
+        zenity --info --title="Cursor Update" --text="Cursor has been updated to v$LATEST_VERSION."
     fi
 fi
