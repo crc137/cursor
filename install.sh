@@ -18,7 +18,7 @@ read -r -d '' ICON_SVG <<'EOF'
   <path fill="#444" d="m83.996 33.703-15.999 28.35 15.999 9.45zM51.998 52.604 20 71.504v-37.8z"></path>
 </svg>
 EOF
-    
+
 check_dependencies() {
     local missing=()
     for cmd in curl jq zenity; do
@@ -26,25 +26,26 @@ check_dependencies() {
             missing+=("$cmd")
         fi
     done
-
+    if ! dpkg -s libfuse2 &>/dev/null; then
+        missing+=("libfuse2")
+    fi
     if [ ${#missing[@]} -gt 0 ]; then
-        echo "Installing ${missing[*]}..."
-        sudo apt-get update -y
-        sudo apt-get install -y "${missing[@]}"
+        echo "Installing missing dependencies: ${missing[*]}..."
+        sudo apt-get update -qq -y
+        sudo apt-get install -qq -y "${missing[@]}" >/dev/null 2>&1
     fi
 }
 
 get_latest_info() {
     API_JSON=$(curl -s "https://cursor.com/api/download?platform=linux-x64&releaseTrack=stable")
     if [ -z "$API_JSON" ]; then
-        zenity --error --title="Cursor Installer" --text="Failed to fetch Cursor API. Check your internet."
+        zenity --error --title="Cursor Installer" --text="Failed to fetch Cursor API. Check your internet." --width=400
         exit 1
     fi
     LATEST_VERSION=$(echo "$API_JSON" | jq -r '.version')
     LATEST_URL=$(echo "$API_JSON" | jq -r '.downloadUrl')
-
     if [ -z "$LATEST_VERSION" ] || [ -z "$LATEST_URL" ]; then
-        zenity --error --title="Cursor Installer" --text="Failed to parse API response."
+        zenity --error --title="Cursor Installer" --text="Failed to parse API response." --width=400
         exit 1
     fi
 }
@@ -54,60 +55,48 @@ get_installed_version() {
         cat "$VERSION_FILE"
         return
     fi
-
     if [ -x "$APPIMAGE_PATH" ]; then
         local version_tmp
         version_tmp=$(mktemp)
-
         if "$APPIMAGE_PATH" --appimage-version >"$version_tmp" 2>/dev/null; then
             tr -d '\r' <"$version_tmp"
             rm -f "$version_tmp"
             return
         fi
-
         if "$APPIMAGE_PATH" --version >"$version_tmp" 2>/dev/null; then
             tr -d '\r' <"$version_tmp"
             rm -f "$version_tmp"
             return
         fi
-
         rm -f "$version_tmp"
     fi
-
     echo "none"
 }
 
 install_cursor() {
     get_latest_info
     echo "Installing Cursor v${LATEST_VERSION}..."
-
     local temp_file
     temp_file=$(mktemp)
-
     if ! curl -fSL "$LATEST_URL" -o "$temp_file"; then
         rm -f "$temp_file"
-        zenity --error --title="Cursor Installer" --text="Failed to download Cursor v${LATEST_VERSION}."
+        zenity --error --title="Cursor Installer" --text="Failed to download Cursor v${LATEST_VERSION}." --width=400
         exit 1
     fi
-
     sudo install -m 0755 "$temp_file" "$APPIMAGE_PATH"
     rm -f "$temp_file"
     echo "$LATEST_VERSION" | sudo tee "$VERSION_FILE" >/dev/null
-
     echo "$ICON_SVG" | sudo tee "$ICON_PATH" >/dev/null
-
     sudo tee "$DESKTOP_ENTRY_PATH" >/dev/null <<EOL
 [Desktop Entry]
 Name=Cursor
-Exec=$APPIMAGE_PATH --no-sandbox
+Exec=$APPIMAGE_PATH --no-sandbox %U
 Icon=$ICON_PATH
 Type=Application
 Categories=Development;
 EOL
-
-    if ! grep -q "cursor.appimage" "$HOME/.bashrc"; then
+    if ! grep -q "# Cursor alias" "$HOME/.bashrc"; then
         cat >> "$HOME/.bashrc" <<'EOL'
-
 # Cursor alias
 function cursor() {
     if pgrep -f "cursor.appimage" > /dev/null; then
@@ -120,55 +109,48 @@ function cursor() {
 EOL
         source "$HOME/.bashrc"
     fi
-
-    zenity --info --title="Cursor Installer" --text="Cursor v${LATEST_VERSION} installed and available in Show Apps."
+    zenity --info --title="Cursor Installer" --text="Cursor v${LATEST_VERSION} installed and available in Show Apps." --width=400
 }
 
 remove_cursor() {
     if pgrep -f "cursor.appimage" > /dev/null; then
         pkill -f "cursor.appimage"
     fi
-
     sudo rm -f "$APPIMAGE_PATH" "$ICON_PATH" "$DESKTOP_ENTRY_PATH" "$VERSION_FILE"
-
     if grep -q "# Cursor alias" "$HOME/.bashrc"; then
         sed -i '/# Cursor alias/,+7d' "$HOME/.bashrc"
     fi
-
     (crontab -l 2>/dev/null | grep -v "$CRON_MARKER") | crontab -
     rm -f "$CHECK_SCRIPT"
-
     source "$HOME/.bashrc"
-    zenity --info --title="Cursor Installer" --text="Cursor completely removed."
+    zenity --info --title="Cursor Installer" --text="Cursor completely removed." --width=400
 }
 
 setup_daily_check() {
     cp "$(dirname "$0")/cursor_update_check.sh" "$CHECK_SCRIPT"
     chmod +x "$CHECK_SCRIPT"
-    
+  
     (crontab -l 2>/dev/null | grep -v "$CRON_MARKER"; echo "0 10 * * * /bin/bash $CHECK_SCRIPT $CRON_MARKER") | crontab -
-    zenity --info --title="Cursor Installer" --text="Daily update check scheduled at 10:00"
+    zenity --info --title="Cursor Installer" --text="Daily update check scheduled at 10:00" --width=400
 }
 
 remove_daily_check() {
     (crontab -l 2>/dev/null | grep -v "$CRON_MARKER") | crontab -
-    
+  
     rm -f "$CHECK_SCRIPT"
-    
-    zenity --info --title="Cursor Installer" --text="Daily update check removed."
+  
+    zenity --info --title="Cursor Installer" --text="Daily update check removed." --width=400
 }
 
 check_dependencies
 get_latest_info
-
 CHOICE=$(zenity --list --title="Cursor Installer / Updater" \
     --column="Option" --column="Description" \
     1 "Install/Update Cursor" \
     2 "Remove Cursor" \
     3 "Setup Daily Update Check" \
     4 "Remove Daily Update Check" \
-    5 "Exit")
-
+    5 "Exit" --width=400)
 case $CHOICE in
     1)
         INSTALLED_VERSION=$(get_installed_version)
@@ -178,7 +160,7 @@ case $CHOICE in
             remove_cursor
             install_cursor
         else
-            zenity --info --title="Cursor Installer" --text="Cursor v$INSTALLED_VERSION is already up to date"
+            zenity --info --title="Cursor Installer" --text="Cursor v$INSTALLED_VERSION is already up to date" --width=400
         fi
         ;;
     2)
