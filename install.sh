@@ -22,17 +22,22 @@ EOF
 check_dependencies() {
     local missing=()
     for cmd in curl jq zenity; do
-        if ! command -v "$cmd" &>/dev/null; then
-            missing+=("$cmd")
-        fi
+        command -v "$cmd" &>/dev/null || missing+=("$cmd")
     done
-    if ! dpkg -s libfuse2 &>/dev/null; then
-        missing+=("libfuse2")
+    if ! dpkg -s libfuse2 &>/dev/null && ! dpkg -s libfuse2t64 &>/dev/null; then
+        if apt-cache show libfuse2t64 &>/dev/null; then
+            missing+=("libfuse2t64")
+        else
+            missing+=("libfuse2")
+        fi
     fi
     if [ ${#missing[@]} -gt 0 ]; then
         echo "Installing missing dependencies: ${missing[*]}..."
-        sudo apt-get update -qq -y
-        sudo apt-get install -qq -y "${missing[@]}" >/dev/null 2>&1
+        sudo apt-get update
+        sudo apt-get install -y "${missing[@]}" || {
+            echo "Failed to install: ${missing[*]}" >&2
+            exit 1
+        }
     fi
 }
 
