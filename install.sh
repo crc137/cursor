@@ -24,7 +24,6 @@ check_dependencies() {
     for cmd in curl jq zenity; do
         command -v "$cmd" &>/dev/null || missing+=("$cmd")
     done
-    # libfuse2 переименован в libfuse2t64 в новых Debian/Kali
     if ! dpkg -s libfuse2 &>/dev/null && ! dpkg -s libfuse2t64 &>/dev/null; then
         if apt-cache show libfuse2t64 &>/dev/null; then
             missing+=("libfuse2t64")
