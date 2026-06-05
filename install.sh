@@ -25,10 +25,12 @@ check_dependencies() {
         command -v "$cmd" &>/dev/null || missing+=("$cmd")
     done
     if ! dpkg -s libfuse2 &>/dev/null && ! dpkg -s libfuse2t64 &>/dev/null; then
-        if apt-cache show libfuse2t64 &>/dev/null; then
+        if apt-cache policy libfuse2t64 2>/dev/null | grep -q 'Candidate:.*[0-9]'; then
             missing+=("libfuse2t64")
-        else
+        elif apt-cache policy libfuse2 2>/dev/null | grep -q 'Candidate:.*[0-9]'; then
             missing+=("libfuse2")
+        else
+            echo "WARNING: neither libfuse2 nor libfuse2t64 found, skipping" >&2
         fi
     fi
     if [ ${#missing[@]} -gt 0 ]; then
