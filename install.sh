@@ -34,10 +34,12 @@ check_dependencies() {
     if [ ${#missing[@]} -gt 0 ]; then
         echo "Installing missing dependencies: ${missing[*]}..."
         sudo apt-get update
-        sudo apt-get install -y "${missing[@]}" || {
-            echo "Failed to install: ${missing[*]}" >&2
+        if ! sudo apt-get install -y "${missing[@]}"; then
+            zenity --error --title="Cursor Installer" \
+                --text="apt не смог установить: ${missing[*]}\nЗапусти вручную:\nsudo apt-get install -y ${missing[*]}" --width=450 2>/dev/null
+            echo "ОШИБКА apt выше ^^^ — прочитай её" >&2
             exit 1
-        }
+        fi
     fi
 }
 
