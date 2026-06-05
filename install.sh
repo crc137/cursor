@@ -24,6 +24,7 @@ check_dependencies() {
     for cmd in curl jq zenity; do
         command -v "$cmd" &>/dev/null || missing+=("$cmd")
     done
+    # libfuse2 переименован в libfuse2t64 в новых Debian/Kali
     if ! dpkg -s libfuse2 &>/dev/null && ! dpkg -s libfuse2t64 &>/dev/null; then
         if apt-cache show libfuse2t64 &>/dev/null; then
             missing+=("libfuse2t64")
@@ -35,9 +36,8 @@ check_dependencies() {
         echo "Installing missing dependencies: ${missing[*]}..."
         sudo apt-get update
         if ! sudo apt-get install -y "${missing[@]}"; then
-            zenity --error --title="Cursor Installer" \
-                --text="apt не смог установить: ${missing[*]}\nЗапусти вручную:\nsudo apt-get install -y ${missing[*]}" --width=450 2>/dev/null
-            echo "ОШИБКА apt выше ^^^ — прочитай её" >&2
+            echo "ОШИБКА: apt не смог установить: ${missing[*]}" >&2
+            echo "Прочитай вывод apt выше — там причина." >&2
             exit 1
         fi
     fi
