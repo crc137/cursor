@@ -7,7 +7,17 @@ VERSION_FILE="/opt/cursor.version"
 CHECK_SCRIPT="$HOME/.cursor_update_check.sh"
 CRON_MARKER="# Cursor daily update check"
 
-read -r -d '' ICON_SVG <<'EOF'<svg xmlns="http://www.w3.org/2000/svg" width="104" height="104" fill="none" viewBox="0 0 104 104" class="size-30"><rect width="104" height="104" fill="#0C0C0C" rx="22"></rect><path fill="#939393" d="M51.998 90.405v-37.8L20 71.504z"></path><path fill="#E3E3E3" d="M84 33.703 52.001 90.404v-37.8z"></path><path fill="#fff" d="M20 33.703h63.995l-31.998 18.9z"></path><path fill="#444" d="M52.002 14.804v18.9h31.997z"></path><path fill="#939393" d="M20 33.705h31.998v-18.9zM84 71.504l-16-9.45-15.998 28.35z"></path><path fill="#444" d="m83.996 33.703-15.999 28.35 15.999 9.45zM51.998 52.604 20 71.504v-37.8z"></path></svg> EOF
+read -r -d '' ICON_SVG <<'EOF'
+<svg xmlns="http://www.w3.org/2000/svg" width="104" height="104" fill="none" viewBox="0 0 104 104" class="size-30">
+<rect width="104" height="104" fill="#0C0C0C" rx="22" />
+<path fill="#939393" d="M51.998 90.405v-37.8L20 71.504z" />
+<path fill="#E3E3E3" d="M84 33.703 52.001 90.404v-37.8z" />
+<path fill="#fff" d="M20 33.703h63.995l-31.998 18.9z" />
+<path fill="#444" d="M52.002 14.804v18.9h31.997z" />
+<path fill="#939393" d="M20 33.705h31.998v-18.9zM84 71.504l-16-9.45-15.998 28.35z" />
+<path fill="#444" d="m83.996 33.703-15.999 28.35 15.999 9.45zM51.998 52.604 20 71.504v-37.8z" />
+</svg>
+EOF
 
 check_dependencies() {
     local missing=()
